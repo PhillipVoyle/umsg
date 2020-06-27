@@ -2,7 +2,7 @@ project(umsg)
 cmake_minimum_required(VERSION 3.16)
 
 
-add_library(umsg INTERFACE)
-target_include_directories(umsg INTERFACE include/)
+add_library(umsg src/tcp_stream.cpp)
+target_include_directories(umsg PUBLIC include/)
 
 add_subdirectory(examples)
