@@ -1,4 +1,4 @@
-# $\mu$msg: lightweight messaging
+# umsg: lightweight messaging
 ## What is this?
 This project is a collection of components that can be used to build high performance, and interoperable messaging into your C++ application.
 ## Why?
