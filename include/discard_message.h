@@ -9,7 +9,7 @@ namespace umsg {
     class discard_message
     {
     public:
-        void msg(T c) {
+        void send(T c) {
             // handle message here
         }
     };
@@ -18,7 +18,7 @@ namespace umsg {
     template<>
     class discard_message<void>
     {
-        void msg() {
+        void send() {
         }
     };
 }

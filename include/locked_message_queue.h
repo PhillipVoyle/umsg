@@ -51,10 +51,10 @@ namespace umsg {
 
         ~locked_message_queue() = default; //I think this is alright
 
-        void msg(TX t) {
+        void send(TX t) {
             std::lock_guard<TM> lock(mut_);
             q_.push(t);
-            n_.msg(); //notify listener
+            n_.send(); //notify listener
         }
         auto size() const {
             std::lock_guard<TM> lock(mut_);
@@ -91,7 +91,7 @@ namespace umsg {
         void recv(TR& tr) {
             std::lock_guard<TM> lock(mut_);
             if (!q_.empty()) {
-                tr.msg(q_.front());
+                tr.send(q_.front());
                 q_.pop();
             }
         }

@@ -8,16 +8,16 @@ int main(int argc, char** argv) {
 
     message_queue<int> q;
 
-    q.msg(1);
-    q.msg(2);
-    q.msg(3);
-    q.msg(4);
-    q.msg(5);
-    q.msg(6);
-    q.msg(7);
-    q.msg(8);
-    q.msg(9);
-    q.msg(10);
+    q.send(1);
+    q.send(2);
+    q.send(3);
+    q.send(4);
+    q.send(5);
+    q.send(6);
+    q.send(7);
+    q.send(8);
+    q.send(9);
+    q.send(10);
     
     while(!q.empty())
     {

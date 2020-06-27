@@ -14,7 +14,7 @@ namespace umsg {
     {
         TQ q_;
     public:
-        void msg(TX t) {
+        void send(TX t) {
             q_.push(t);
         }
         auto size() {
@@ -41,7 +41,7 @@ namespace umsg {
         template<typename TR>
         void recv(TR& tr) {
             if (!q_.empty()) {
-                tr.msg(q_.front());
+                tr.send(q_.front());
                 q_.pop();
             }
         }

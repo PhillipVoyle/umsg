@@ -15,14 +15,14 @@ namespace umsg {
         void operator=(const tcp_stream& s);
         void operator=(tcp_stream&& s);
         ~tcp_stream();
-        void msg(const std::vector<unsigned char>& packet);
+        void send(const std::vector<unsigned char>& packet);
         bool ready();
         std::vector<unsigned char> recv();
 
         template<typename T>
         void recv(T& recvr) {
             auto v = recv();
-            recvr.msg(v);
+            recvr.send(v);
         }
     private:
         mutable socket_t socket_;

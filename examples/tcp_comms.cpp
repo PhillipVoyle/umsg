@@ -32,8 +32,8 @@ int  main(int argc, char** argv) {
             }
         }
         const char* out = "testing\n";
-        out_stream.msg(std::vector<uint8_t>((const uint8_t*)out, (const uint8_t*) out + strlen(out)));
-        out_stream.msg(std::vector<uint8_t>{});
+        out_stream.send(std::vector<uint8_t>((const uint8_t*)out, (const uint8_t*) out + strlen(out)));
+        out_stream.send(std::vector<uint8_t>{});
 
         for(;;)
         {
@@ -79,7 +79,7 @@ int  main(int argc, char** argv) {
             if (buf.size() == 0){
                 break;
             }
-            in_stream.msg(buf);
+            in_stream.send(buf);
         }
     });
 

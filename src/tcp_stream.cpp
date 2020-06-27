@@ -45,11 +45,11 @@ namespace umsg {
 #endif
     }
 
-    void tcp_stream::msg(const std::vector<unsigned char>& packet) {
+    void tcp_stream::send(const std::vector<unsigned char>& packet) {
         if (packet.size() == 0) {
             shutdown(socket_, 1);
         } else  {
-            send(socket_, packet.data(), packet.size(), 0);
+            ::send(socket_, packet.data(), packet.size(), 0);
         }
     }
 
