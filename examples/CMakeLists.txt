@@ -18,3 +18,8 @@ set_property(TARGET vanilla_queue PROPERTY CXX_STANDARD 17)
 add_executable(tcp_comms tcp_comms.cpp)
 target_link_libraries(tcp_comms PRIVATE umsg Threads::Threads)
 set_property(TARGET tcp_comms PROPERTY CXX_STANDARD 17)
+
+
+add_executable(async_test async_test.cpp)
+target_link_libraries(async_test PRIVATE umsg Threads::Threads)
+set_property(TARGET async_test PROPERTY CXX_STANDARD 17)
