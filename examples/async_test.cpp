@@ -10,6 +10,7 @@
 #include <mutex>
 #include <atomic>
 #include <vector>
+#include <deque>
 #include <iostream>
 #include <deque>
 #include <tuple>
@@ -47,6 +48,8 @@ class posix_select_thread {
     std::vector<std::function<void()>> actions_;
     std::mutex mut_;
 
+    std::deque<std::pair<std::chrono::high_resolution_clock::time_point, std::function<void()>>> timers_;
+
     std::vector<file_info> files_;
     int pipe_[2];
 
@@ -71,6 +74,7 @@ class posix_select_thread {
     }
 
     void loop_body() {
+        // std::cout << "loop_body" << std::endl;
 
         // clear file descriptor set
         fd_set read_fds;
@@ -78,7 +82,6 @@ class posix_select_thread {
 
         FD_ZERO(&read_fds);
         FD_ZERO(&write_fds);
-
 
         int nfds = 0;
 
@@ -88,21 +91,44 @@ class posix_select_thread {
 
         // build timeout
         struct timeval *ptimeout = nullptr;
+        timeval timeout {0, 0};
+
+        std::unique_lock<std::mutex> lock(mut_);
+        if (!timers_.empty()) {
+            auto front = timers_.front();
+            auto now = std::chrono::high_resolution_clock::now();
+            auto ttlus = std::chrono::duration_cast<std::chrono::microseconds>(front.first - now).count();
+            // std::cout << "timeout in " << ttlus << "us" << std::endl;
+            if (ttlus < 0) {
+                timeout.tv_sec = 0;
+                timeout.tv_usec = 0;
+            } else {
+                timeout.tv_sec = ttlus / 100000;
+                timeout.tv_usec = ttlus % 100000;
+            }
+            ptimeout = &timeout;
+        }
+
+        lock.unlock();
 
         int select_result = select(nfds, &read_fds, &write_fds, nullptr, ptimeout);
         if (select_result < 0) {
-
             std::cerr << "select error" << std::endl;
 
         } else {
             if (select_result == 0) {
-                //timeout
+                // timeout 
+                lock.lock();
+                auto front = timers_.front();
+                timers_.pop_front();
+                lock.unlock();
+                front.second();
             }
             if (FD_ISSET(pipe_[0], &read_fds)) {
                 char c = '\0';
                 interrupted_ = false;
                 read(pipe_[0], &c, sizeof(c));
-                std::cout << "interrupted" << std::endl;
+                // std::cout << "interrupted" << std::endl;
             }
 
             std::vector<std::function<void()>> callbacks; 
@@ -168,7 +194,17 @@ class posix_select_thread {
     }
 
     void set_timer(std::chrono::high_resolution_clock::time_point time, std::function<void()> on_timeout) {
+        std::unique_lock<std::mutex> lock(mut_);
+        auto it = timers_.begin();
+        while(it != timers_.end()) {
+            if (time < it->first) {
+                break;
+            }
+            it ++;
+        }
 
+        timers_.insert(it, std::make_pair(time, on_timeout));
+        interrupt();
     }
 
     void start() {
@@ -207,15 +243,21 @@ public:
             return true;
         }
     }
+    void schedule(std::chrono::microseconds us, std::function<void()> on_timeout) {
+        set_timer(std::chrono::high_resolution_clock::now() + us, on_timeout);
+    }
 };
 
 int main(int argc, char** argv) {
     posix_select_thread thread;
-    thread.queue_action([&thread](){
+    thread.queue_action([&thread]() {
         std::cout << "test" << std::endl;
         thread.queue_action([](){ std::cout << "another action" << std::endl;});
-        thread.queue_action([&thread](){ thread.set_stop_flag(); });
+        thread.schedule(10ms, [&thread]() {
+            std::cout << "timeout" << std::endl;
+            thread.queue_action([&thread](){ thread.set_stop_flag(); });
+        });
     });
-    //std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(1000ms);
     return 0;
 }
