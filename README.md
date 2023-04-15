@@ -1,6 +1,6 @@
 # umsg: lightweight messaging
 ## What is this?
-This project is a collection of components that can be used to build high performance, and interoperable messaging into your C++ application.
+This (Very WIP) project is intended as a collection of components that can be used to build high performance, and interoperable messaging into your C++ application.
 ## Why?
 Partly for fun, partly as a way of publicly showcasing my development ability (i.e to show off), and partly because I think that there is something I can contribute here.
 
