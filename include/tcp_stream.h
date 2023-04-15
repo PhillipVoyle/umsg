@@ -25,6 +25,7 @@ namespace umsg {
             recvr.send(v);
         }
     private:
+        void internal_close();
         mutable socket_t socket_;
     };
 }

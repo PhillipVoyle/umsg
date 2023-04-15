@@ -20,6 +20,15 @@ namespace umsg {
         s.socket_ = 0;
     }
 
+    void tcp_stream::internal_close()
+    {
+#ifdef __WIN32            
+        closesocket(socket_);
+#else
+        close(socket_);
+#endif
+    }
+
     void tcp_stream::operator=(const tcp_stream& s) {
         if(socket_ != 0 && socket_ != s.socket_) {
             close(socket_);
@@ -38,11 +47,7 @@ namespace umsg {
 
 
     tcp_stream::~tcp_stream() {
-#ifdef __WIN32            
-        closesocket(socket_);
-#else
-        close(socket_);
-#endif
+        internal_close();
     }
 
     void tcp_stream::send(const std::vector<unsigned char>& packet) {
